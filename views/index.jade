@@ -1,0 +1,97 @@
+!!! 5
+html(ng-app='wishSocial.index', ng-controller='Init')
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    title 愿望帮帮忙
+    meta(name='description', content='')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    link(rel='stylesheet', type='text/css', href='css/bootstrap.css')
+    link(rel='stylesheet', type='text/css', href='css/flat-ui.css')
+    link(rel='stylesheet', type='text/css', href='css/bootstrap-tagsinput.css')
+    link(rel='stylesheet', type='text/css', href='css/application.css')      
+    link(rel='shortcut icon', href='images/favicon.ico')
+    //if lt IE 9
+      script(src='js/html5shiv.js')
+  body
+    //if lt IE 7
+      p.browsehappy
+        | You are using an
+        strong outdated
+        | browser. Please
+        a(href='http://browsehappy.com/') upgrade your browser
+        | to improve your experience.
+    .navbar.navbar-default
+      .container
+        .navbar-header
+          button.btn.btn-navbar(type='button', data-toggle='collapse', data-target='.navbar-collapse-01')
+          a.navbar-brand.fui-myspace(href='#/') 愿望帮帮忙
+        .navbar-collapse.collapse.navbar-collapse-01
+          form.navbar-form.pull-left(action='#')
+            .form-group
+              .input-group.input-group-sm
+                input#navbarInput-02.form-control(type='search', placeholder='搜索愿望')
+                span.input-group-btn
+                  button.btn(type='submit')
+                    span.fui-search
+          a.btn.btn-primary.pull-right.wish-add(href='#/add/wish') + 许愿
+    .container
+      .row(ng-view)
+    .bottom-menu.bottom-menu-large.mbl
+      .container
+        .row
+          .col-md-2.navbar-brand
+            a.fui-myspace(href='#fakelink')
+          .col-md-2
+            h5.title 网站相关
+            ul.bottom-links
+              li
+                a(href='#fakelink') 关于我们
+              li
+                a(href='#fakelink') 服务条款
+              li
+                a(href='#fakelink') 帮助中心
+              li
+                a(href='#fakelink') 建议反馈
+          .col-md-2
+            h5.title 联系合作
+            ul.bottom-links
+              li
+                a(href='#fakelink') 合作伙伴
+              li
+                a(href='#fakelink') 广告投放
+              li
+                a(href='#fakelink') 媒体报道
+          .col-md-2
+            h5.title 常用链接
+            ul.bottom-links
+              li
+                a(href='#fakelink') 开发日志
+          .col-md-2
+            h5.title 关注我们
+            ul.bottom-links
+              li
+                a(href='#fakelink') 新浪微博
+              li
+                a(href='#fakelink') 人人网
+              li
+                a(href='#fakelink') 腾讯微博
+              li.active
+                a(href='#fakelink') Facebook
+          .col-md-2
+            h5.title 内容许可
+            ul.bottom-links
+              li Powered by Webu123
+    script(src='js/jquery-2.1.0.min.js')
+    script(src='/js/angular.min.js')
+    script(src='/js/angular-resource.min.js')
+    script(src='/js/angular-route.min.js')    
+    script(src='js/jquery-ui-1.10.3.custom.min.js')
+    script(src='js/bootstrap.min.js')
+    script(src='js/bootstrap-select.js')
+    script(src='js/bootstrap-switch.js')
+    script(src='js/bootstrap-typeahead.js')
+    script(src='js/jquery.placeholder.js')
+    script(src='js/bootstrap-tagsinput.min.js')
+    script(src='js/bootstrap-tagsinput-angular.js')
+    script(src='js/application.js')

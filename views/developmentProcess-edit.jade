@@ -1,0 +1,6 @@
+.markdownEdit
+  p title
+  input(type='text', id='title', ng-model='developmentProcess.title', autofocus="autofocus")
+  p content
+  #epiceditor(load-epiceditor, content='developmentProcess.content', edit='true')
+  input(type='button', value='save', ng-click='saveContent()')

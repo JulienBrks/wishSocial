@@ -1,0 +1,6 @@
+.markdownEdit
+  p title
+  input(type='text', id='title', ng-model='title', autofocus="autofocus")
+  p content
+  #epiceditor(load-epiceditor content='')
+  input(type='button', value='Add', ng-click='addDevelopmentProcess()')

@@ -1,0 +1,15 @@
+.container
+  .row  
+    article.developmentProcesses.col-md-8.col-md-offset-2
+      h1.text-center.page-header
+        | 开发记录
+        a(href='#/add/developmentProcess',type='button',class='btn btn-primary pull-right') +add
+      section.developmentProcess(ng-repeat='developmentProcess in developmentProcesses')
+        span Create Time: 
+        time(ng-bind='developmentProcess.createTime')
+        h2
+          a(href='javascript:;' ng-bind='developmentProcess.title' ng-click='editDevelopmentProcess(this)')
+        //- span Last edit Time: 
+        //- time(ng-bind='developmentProcess.lastEditTime')
+        blockquote
+          p(ng-bind-html='developmentProcess.contentHtml')

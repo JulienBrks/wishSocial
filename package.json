@@ -1,0 +1,15 @@
+{
+  "name": "wishSocial",
+  "version": "0.0.0",
+  "description": "毕业设计",
+  "author": "Julien",
+  "dependencies": {
+    "express": "3.4.7",
+    "jade": "0.35.0"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-compass": "~0.7.0",
+    "pagedown": "~1.1.0"
+  }
+}

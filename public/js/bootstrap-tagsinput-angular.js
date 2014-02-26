@@ -1,18 +1,5 @@
 angular.module('bootstrap-tagsinput', [])
 .directive('bootstrapTagsinput', [function() {
-
-  function getItemProperty(scope, property) {
-    if (!property)
-      return undefined;
-
-    if (angular.isFunction(scope.$parent[property]))
-      return scope.$parent[property];
-
-    return function(item) {
-      return item[property];
-    };
-  }
-
   return {
     restrict: 'E',
     scope: {
@@ -30,10 +17,6 @@ angular.module('bootstrap-tagsinput', [])
           typeahead : {
             source   : angular.isFunction(scope.$parent[attrs.typeaheadSource]) ? scope.$parent[attrs.typeaheadSource] : null
           },
-          itemValue: getItemProperty(scope, attrs.itemvalue),
-          itemText : getItemProperty(scope, attrs.itemtext),
-          tagClass : angular.isFunction(scope.$parent[attrs.tagclass]) ? scope.$parent[attrs.tagclass] : function(item) { return attrs.tagclass; },
-          objectItems: true,
           confirmKeys: [13]
         };
         select.tagsinput(options);
@@ -75,31 +58,6 @@ angular.module('bootstrap-tagsinput', [])
             select.tagsinput('add', added[i]);
           }
         }, true);
-
-        //Press enter to push new item to items
-        select.parent().on('keydown','input',function(event){
-          if ($.inArray(event.which, options.confirmKeys) >= 0) {
-            scope.model.push({ "value": 100 , "text": "asdf", "continent": "Europe"});
-            var added = scope.model.filter(function(i) {return prev.indexOf(i) === -1;}),
-                removed = prev.filter(function(i) {return scope.model.indexOf(i) === -1;}),
-                i;
-            prev = scope.model.slice();
-
-            // Remove tags no longer in binded model
-            for (i = 0; i < removed.length; i++) {
-              select.tagsinput('remove', removed[i]);
-            }
-
-            // Refresh remaining tags
-            select.tagsinput('refresh');
-
-            // Add new items in model as tags
-            for (i = 0; i < added.length; i++) {
-              select.tagsinput('add', added[i]);
-            }
-            element.parent().find('input').val('');
-          }
-        })
       });
     }
   };

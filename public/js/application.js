@@ -377,17 +377,7 @@ String.prototype.repeat = function(num) {
 
       $scope.queryTags = function(query) {
         return $http.get('/tags?query='+query);
-      };
- 
-      $scope.getTagClass = function(city) {
-        switch (city.class) {
-          case 'Europe'   : return 'bg-green-light';
-          case 'America'  : return 'label label-important';
-          case 'Australia': return 'badge badge-success';
-          case 'Africa'   : return 'label label-inverse';
-          case 'Asia'     : return 'badge badge-warning';
-        }
-      };    
+      };  
       // console.log($scope);
       $scope.newWish = {
         title: '',
@@ -395,9 +385,9 @@ String.prototype.repeat = function(num) {
       };
       $scope.submitNewWish = function(){
         var newWishObj = {};
-        console.log($scope.newWish);
         newWishObj.title = $scope.newWish.title;
         newWishObj.content = $scope.newWish.content;
+        newWishObj.tags = $scope.tags;
         var newWish = window.$.param(newWishObj);
         var url = '/wishes'
         $http.post(url,newWish)
@@ -405,6 +395,9 @@ String.prototype.repeat = function(num) {
           $location.path('/');
         });
       }
+    })
+    .controller('viewWishesCtrl',function($scope,$http,$location,$q) {
+
     });
   var index = angular.module(
     'wishSocial.index',
@@ -418,7 +411,7 @@ String.prototype.repeat = function(num) {
     function($routeProvider) {
       $routeProvider
         .when('/',{
-          controller: 'viewWishedCtrl',
+          controller: 'viewWishesCtrl',
           templateUrl: '/views/wishes.jade'
         })
         .when('/add/wish',{

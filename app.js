@@ -4,7 +4,7 @@ var
   conn = require('./conn.js').conn,
   moment = require('moment'); 
 conn.connect();
-var chgSnake2Camel = require('./utilities.js').chgSnake2Camel;
+var utilities = require('./utilities.js').util;
 app
   .set('views', __dirname + '/views')
   .set('view engine','jade')
@@ -64,7 +64,7 @@ app
     var id = req.params.id;
     conn.query('select * from development_processes where id = '+id,function(err,rows,fields){
       if (err) {console.log(err)};
-      var objDevelopmentProcess = chgSnake2Camel(rows[0]);
+      var objDevelopmentProcess = utilities.chgSnake2Camel(rows[0]);
       var jsonDevelopmentProcess = objDevelopmentProcess;
       res.send(jsonDevelopmentProcess);
     })
@@ -80,37 +80,54 @@ app
     //   ,lastEditTime: '2013-01-12 14:00:00'
     // }];
     conn.query('SELECT * FROM development_processes order by create_time desc',function(err,rows,fields){
-      if (err) {console.log(err);};
-      var objDevelopmentProcesses = chgSnake2Camel(rows);
+      if (err) {console.log(err4);};
+      var objDevelopmentProcesses = utilities.chgSnake2Camel(rows);
       // console.log(objDevelopmentProcesses);
       var jsonDevelopmentProcesses = JSON.stringify(objDevelopmentProcesses);
       res.send(jsonDevelopmentProcesses);
     })
   })
   .post('/wishes',function(req,res){
-    var newWish = req.body;
-    newWish.create_time = moment().format('YYYY-MM-DD HH:mm:ss');
-    conn.query('insert into wishes set ?',newWish, function(err, rows, fields) {
-      if (err) {
-        console.log('conn.query.err: ' + err);
-        res.send(500,'Sorry, but it seems that we got some trouble! We will fix it as soon as possible.');
-        return ;
+    var tags = req.body.tags;
+    for (var i = tags.length - 1; i >= 0; i--) {
+      tags[i] = utilities.trim(tags[i]);
+    };
+    tags = utilities.delSameItem(tags);   
+    tags = utilities.filterInvldChar(tags,',');
+    var numTags = tags.length;
+    tags = tags.join(',');
+    conn.query('call addNewWish("'+tags+'",'+numTags+',"'+req.body.title+'","'+req.body.content+'");',function(err,rows,fields){
+      if(err){
+        console.log(err);
       }
-      res.send(200);
-    });
+    });       
   })
   //return for autocomplete tag content
   .get('/tags',function(req,res){
-    conn.query('select name as text,id as value from tags where name like "%'+req.query.query+'%"', function(err,rows,fileds) {
+    conn.query('select name from tags where name like "%'+req.query.query+'%"', function(err,rows,fileds) {
       if(err){
         console.log('conn.query.err: ' +err);
         res.send(500,'Sorry, but it seems that we got some trouble! We will fix it as soon as possible.');
         return ;
       }
-      res.send(200,rows);
-    })
+      var resTags = utilities.arrObjsSpecificKey2Arr(rows,'name');
+      res.send(200,resTags);
+    });
+  })
+  //If tags don't exist in tags table then add them
+  .post('/wish',function(req,res){
+    var tags = 'asdf';
+    conn.query('call isExistTag('+tags+')',function(err, rows, fileds) {
+      if(err) {
+         console.log(err);
+      }
+      console.log(rows[0]);
+    });
   })
   ;
   //后台编辑
 app.listen(3000);
 console.log('Listening on port 3000');
+
+
+

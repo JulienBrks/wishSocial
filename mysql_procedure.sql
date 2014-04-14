@@ -1,5 +1,4 @@
 DELIMITER $$
-##Add new wish.
 DROP PROCEDURE IF EXISTS addNewWish $$
 CREATE PROCEDURE addNewWish(
 	in vTags varchar(120),
@@ -32,5 +31,5 @@ BEGIN
 		end if;
 	end while;
 END $$
-
+call addNewWish('a',1,'姑娘','姑娘啊'); $$
 DELIMITER ;

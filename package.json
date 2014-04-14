@@ -10,6 +10,8 @@
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-compass": "~0.7.0",
-    "pagedown": "~1.1.0"
+    "pagedown": "~1.1.0",
+    "karma": "~0.12.1",
+    "karma-jasmine": "~0.1.5"
   }
 }

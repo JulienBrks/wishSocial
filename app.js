@@ -87,6 +87,7 @@ app
       res.send(jsonDevelopmentProcesses);
     })
   })
+  //新建一条愿望
   .post('/wishes',function(req,res){
     var tags = req.body.tags;
     for (var i = tags.length - 1; i >= 0; i--) {
@@ -99,12 +100,14 @@ app
     conn.query('call addNewWish("'+tags+'",'+numTags+',"'+req.body.title+'","'+req.body.content+'");',function(err,rows,fields){
       if(err){
         console.log(err);
+        res.send(500,'服务器出现错误');
       }
+      res.send(200,'已成功发布愿望！'); 
     });       
   })
   //return for autocomplete tag content
   .get('/tags',function(req,res){
-    conn.query('select name from tags where name like "%'+req.query.query+'%"', function(err,rows,fileds) {
+    conn.query('select name from tags where name like "%'+req.query.query+'%"', function(err, rows, fields) {
       if(err){
         console.log('conn.query.err: ' +err);
         res.send(500,'Sorry, but it seems that we got some trouble! We will fix it as soon as possible.');
@@ -114,14 +117,43 @@ app
       res.send(200,resTags);
     });
   })
-  //If tags don't exist in tags table then add them
-  .post('/wish',function(req,res){
-    var tags = 'asdf';
-    conn.query('call isExistTag('+tags+')',function(err, rows, fileds) {
-      if(err) {
-         console.log(err);
-      }
-      console.log(rows[0]);
+  .get('/wishes', function(req, res) {
+    var wishes = [{
+      userName: '',
+      userHomeHref: '',
+      userImgSrc: '',
+      voteCount: '',
+      userHomeHref: '',
+      userName: '',
+      userName: '',
+      isConcernUser: '',
+      userGender: '',
+      wishHomeHref: '',
+      wishTitle: '',
+      wishId: '',
+      wishImgSrc: '',
+      wishImgSrc: '',
+      wishContent: '',
+      wishId: '',
+      isCollapse: '',
+      wishId: '',
+      wishId: '',
+      commentNum: '',
+      wishId: '',
+      wishId: '',
+      wishId: '',
+      wishId: '',
+      isCollapse: '',
+      voters: [{
+        userHomeHref: '',
+        userName: '',
+        userName: ''
+      }]
+    }];
+    res.send( 200, JSON.stringify(wishes) );
+    conn.query('select * from wishes', function(err, rows, fields){
+      var resWishes = rows;
+      res.send(200, rows);
     });
   })
   ;

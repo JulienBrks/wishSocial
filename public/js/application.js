@@ -1,16 +1,16 @@
 // Some general UI pack related JS
 // Extend JS String with repeat method
-String.prototype.repeat = function(num) {
+String.prototype.repeat = function (num) {
   return new Array(num + 1).join(this);
 };
 
-(function($) {
+(function ($) {
 
   // Add segments to a slider
   $.fn.addSliderSegments = function (amount) {
     return this.each(function () {
-      var segmentGap = 100 / (amount - 1) + "%"
-        , segment = "<div class='ui-slider-segment' style='margin-left: " + segmentGap + ";'></div>";
+      var segmentGap = 100 / (amount - 1) + "%",
+		  segment = "<div class='ui-slider-segment' style='margin-left: " + segmentGap + ";'></div>";
       $(this).prepend(segment.repeat(amount - 2));
     });
   };
@@ -365,8 +365,28 @@ String.prototype.repeat = function(num) {
   
   //My own index JS
   var indexDirectives = angular.module('wishSocial.index.directives',[]);
-  var indexServices = angular.module('wishSocial.index.services',[]);
+  var indexServices = angular.module('wishSocial.index.services',['ngResource']);
   var indexControllers = angular.module('wishSocial.index.controllers',['bootstrap-tagsinput']);
+  indexServices
+    //所有愿望对应的资源路径
+    .factory('Wishes',function($resource){
+      return $resource('/wishes/:id',{id:'@id'});
+    })
+    //载入所有愿望
+    .factory('WishesLoader', function(Wishes,$q){
+      return function(){
+          var delay = $q.defer();
+          Wishes.query(
+            function(wishes){
+              delay.resolve(wishes);
+            }
+            ,function() {
+              delay.reject('Unable to fetch wishes!');
+            }
+          );
+          return delay.promise;
+      }
+    })			 
   indexControllers
     .controller('Init',function($http){
       //将post内容以表单格式传到服务端
@@ -396,8 +416,8 @@ String.prototype.repeat = function(num) {
         });
       }
     })
-    .controller('viewWishesCtrl',function($scope,$http,$location,$q) {
-
+    .controller('viewWishesCtrl',function($scope,$location,wishes) {
+      $scope.wishes = wishes;
     });
   var index = angular.module(
     'wishSocial.index',
@@ -412,6 +432,11 @@ String.prototype.repeat = function(num) {
       $routeProvider
         .when('/',{
           controller: 'viewWishesCtrl',
+          resolve: {
+      			wishes: function(WishesLoader) {
+      			  return WishesLoader();
+      			}
+          }, 
           templateUrl: '/views/wishes.jade'
         })
         .when('/add/wish',{

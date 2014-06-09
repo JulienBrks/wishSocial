@@ -1,0 +1,34 @@
+div(ng-show='wish.id')
+  .col-md-9
+    .wish-item
+      .avatar
+        a(title='wish.userName', target='_blank', ng-href='{{wish.userHomeHref}}')
+          img.zm-item-img-avatar(ng-src='{{wish.userImgSrc}}')
+        .item-votebar
+          button.up(title='喜欢')
+            i.fui-triangle-up-small
+            span.count {{wish.voteCount}}
+          button.down(title='不喜欢')
+            i.fui-triangle-down-small
+            span.label
+      .wish-main
+        div.tags
+          span.tag(ng-repeat='tag in wish.tags')
+            span(ng-bind='tag.name')
+            a.tagsinput-remove-link
+        div(class='clearfix')
+          h2.top-title(class='pull-left', ng-bind='wish.title')
+          button(class='pull-right', ng-show='isSelf', ng-click='editWish()') 编辑
+        h3
+          strong(ng-bind='wish.userName')
+          strong(ng-bind='wish.userIntro | preppendComma')
+        p(ng-bind='wish.content')
+        .wish-meta
+         span(ng-bind='wish.createTime')
+         a() 5条评论
+      button(class='btn btn-hg btn-primary btn-embossed mlm btn-block help', ng-bind='helpState.text', ng-disabled="helpState.disabled", ng-click="help()")
+  div.col-md-3
+div.dialog(ng-hide="wish.id", ng-bind="wish.err")
+
+
+

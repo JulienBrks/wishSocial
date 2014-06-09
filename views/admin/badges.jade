@@ -1,0 +1,23 @@
+.col-md-8.col-md-offset-2
+  .alert.alert-success.inline-block(ng-show='alert.show', ng-bind='alert.text')
+  table.table.table-bordered
+    thead
+      tr
+        th id
+        th 描述
+        th 图片路径
+        th 操作
+    tbody
+      tr(ng-repeat="badge in badges" ng-controller='BadgeCtrl')
+        td()
+          span(ng-bind="badge.id")
+          input.hide(type="input", ng-model="badge.id", ng-change='isModified=true', edit-cell-blur)
+        td(edit-cell, content='name')
+          span(ng-bind="badge.name")
+          input.hide(type="input", ng-model="badge.name", ng-change='isModified=true', edit-cell-blur)
+        td(edit-cell, content='imgSrc')
+          span(ng-bind="badge.imgSrc")
+          input.hide(type="input", ng-model="badge.imgSrc", ng-change='isModified=true', edit-cell-blur)
+        td
+          button.btn.btn-primary(ng-show="isModified", ng-click="saveModified()") 保存修改
+          button.btn.btn-danger(ng-click="delete($index)") 删除

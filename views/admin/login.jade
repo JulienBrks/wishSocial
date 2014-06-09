@@ -1,0 +1,8 @@
+form(role='form')
+  .form-group
+    label(for='exampleInputEmail1') 用户名
+    input#exampleInputEmail1.form-control(ng-model="admin.name", type='input', placeholder='输入用户名')
+  .form-group
+    label(for='exampleInputPassword1') 密码
+    input#exampleInputPassword1.form-control(ng-model="admin.password", type='password', placeholder='输入密码')
+  button.btn.btn-default(ng-click="login()") 登录

@@ -17,7 +17,7 @@
         a(href='javascript:;', ng-show='wish.isConcernUser') 关注{{wish.userGender ? '他' : '她'}}
       .content
         h2
-          a.link-wish(target='_blank', ng-href='{{wish.wishHomeHref}}') {{wish.wishTitle}}
+          a.link-wish(ng-href='{{wish.wishHomeHref}}') {{wish.wishTitle}}
         .entry-body
           .zm-item-answer-detail
             .zm-item-vote-info
@@ -38,7 +38,7 @@
               | 关注问题
             a.meta-item.toggle-comment(ng-click='comment(wish.wishId)')
               i.z-icon-comment
-              | {{wish.commentNum}} 条评论
+              | {{wish.commentCount}} 条评论
             a.meta-item.zu-autohide(ng-click='thank(wish.wishId)')
               i.z-icon-thank
               | 感谢

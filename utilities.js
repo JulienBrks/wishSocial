@@ -6,18 +6,18 @@ var util = {
    */  
   chgSnake2Camel: function(snakeCases){
     if (snakeCases.constructor == String) {
-      return snakeCases.replace(/(_[a-zA-Z])/g,function(m,p1){
+      return snakeCases.replace(/(_[0-9a-zA-Z])/g,function(m,p1){
         return p1.substring(1).toUpperCase();
       });
     } else if(typeof snakeCases == 'object'&&snakeCases.constructor != Array) {
       for(var snakeCaseKey in snakeCases) {
-        var camelCaseKey = snakeCaseKey.replace(/(_[a-zA-Z])/g,function(m,p1){
+        var camelCaseKey = snakeCaseKey.replace(/(_[0-9a-zA-Z])/g,function(m,p1){
           return p1.substring(1).toUpperCase();
         });
         snakeCases[camelCaseKey] = snakeCases[snakeCaseKey];
         if (camelCaseKey !== snakeCaseKey) {
           delete snakeCases[snakeCaseKey];        
-        };
+        }
       }
       return snakeCases;
     } else if(snakeCases.constructor == Array){

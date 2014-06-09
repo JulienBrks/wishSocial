@@ -1,0 +1,12 @@
+.alert.alert-success.inline-block(ng-show='alert.show', ng-bind='alert.text')
+.dialog.demo-dialog
+  form.form-inline
+    .form-group
+      label.sr-only(for='dialogExampleInputEmail1') 邮箱
+      input#dialogExampleInputEmail1.form-control.flat(type='邮箱', placeholder='Login/E-mail', ng-model='email')
+    .form-group
+      label.sr-only(for='dialogExampleInputPass1') 密码
+      input#dialogExampleInputPass1.form-control.flat(type='password', placeholder='密码', ng-model='password')
+      span.input-icon.fui-question
+    button.btn.btn-primary.btn-wide(ng-click='login()') 登录
+    button.btn.btn-danger.btn-wide(ng-click='register()') 注册

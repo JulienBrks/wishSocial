@@ -1,0 +1,27 @@
+.col-md-8.col-md-offset-2
+  .alert.alert-success.inline-block(ng-show='alert.show', ng-bind='alert.text')
+  table.table.table-bordered
+    thead
+      tr
+        td id
+        th 用户名
+        th 邮箱
+        th 自我介绍
+        th 操作
+    tbody
+      tr(ng-repeat="user in users" ng-controller='UserCtrl')
+        td()
+          span(ng-bind="user.id")
+          input.hide(type="input", ng-model="user.id", ng-change='isModified=true', edit-cell-blur)
+        td(edit-cell, content='name')
+          span(ng-bind="user.name")
+          input.hide(type="input", ng-model="user.name", ng-change='isModified=true', edit-cell-blur)
+        td()
+          span(ng-bind="user.email")
+          input.hide(type="input", ng-model="user.email", ng-change='isModified=true', edit-cell-blur)
+        td(edit-cell, content='introduce')
+          span(ng-bind="user.introduce")
+          input.hide(type="input", ng-model="user.introduce", ng-change='isModified=true', edit-cell-blur)
+        td
+          button.btn.btn-primary(ng-show="isModified", ng-click="saveModified()") 保存修改
+          button.btn.btn-danger(ng-click="delete($index)") 删除

@@ -1,0 +1,25 @@
+.user-home
+  h2(ng-bind="user.name", class="col-md-12 user-profile-name")
+  .user-profile.clearfix
+    .avater(class="user-profile-avatar col-md-2 col-sm-4 col-xs-4")
+      img(ng-src="{{user.imgSrc128}}")
+    p(class="user-profile-info col-md-4 col-sm-4 col-xs-8", ng-bind="user.introduce")
+    ul(class="user-profile-status col-md-1 col-sm-4", style="list-style: none;")
+      li
+        strong.green(ng-bind="badges.length")
+        | 枚徽章
+    .col-md-5.col-sm-12.user-profile-description
+  .col-md-9
+    h2
+      span.green {{wishes.length}}
+      | 个愿望
+    article(class="profile-post", ng-repeat="wish in wishes")
+      div(class="profile-post-vote resolved")
+        span 赞同
+      div(class="profile-post-content")
+        h2
+          a(ng-href="{{wish.wishHomeHref}}",ng-bind="wish.wishTitle")
+        a.profile-post-except(ng-href="wish.wishHomeHref")
+  .col-md-3
+    h3 获得{{badges.length}}枚徽章
+    img(ng-repeat="badge in badges", ng-src="{{badge.imgSrc}}", title="{{badge.name}}")

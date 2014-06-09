@@ -1,4 +1,3 @@
-var util = require('../../utilities.js').util;
 describe("A suite of utility functions", function() {
     it("Change a snakeCase formed string to a camelCase formed string",function(){
         expect("testTestTest").toEqual(util.chgSnake2Camel("test_test_test"));

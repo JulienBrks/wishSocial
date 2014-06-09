@@ -7,10 +7,21 @@ html(ng-app='wishSocial.admin', ng-controller='Init')
     meta(name='description', content='')
     meta(name='viewport', content='width=device-width, initial-scale=1')
     link(rel='shortcut icon', href='/images/favicon.ico')
-    link(rel='stylesheet', type='text/css', href='css/bootstrap.css')
-    link(rel='stylesheet', type='text/css', href='css/flat-ui.css')
-    link(rel='stylesheet', type='text/css', href='css/application.css')
+    link(rel='stylesheet', type='text/css', href='../css/bootstrap.css')
+    link(rel='stylesheet', type='text/css', href='../css/application-admin.css')
   body
+    nav.navbar.navbar-default(role="navigation")
+      .navbar-header
+        a(class="navbar-brand", href="#") 愿望帮帮忙管理后台
+      div(class="collapse navbar-collapse")
+        ul(class="nav navbar-nav")
+          li(ng-class="{active:isActive.users}", ng-click="active('users')")
+            a(href="/admin/users") 用户管理
+          li(ng-class="{active:isActive.badges}", ng-click="active('badges')")
+            a(href="/admin/badges") 徽章管理
+        ul(class="nav navbar-nav navbar-right")
+          li
+            a(ng-bind="admin")
     //if lt IE 7
       p.browsehappy
         | You are using an
@@ -18,12 +29,13 @@ html(ng-app='wishSocial.admin', ng-controller='Init')
         | browser. Please
         a(href='http://browsehappy.com/') upgrade your browser
         | to improve your experience.
-    div(ng-view)
-    script(src='/js/jquery-2.1.0.min.js')
-    script(src='js/bootstrap.min.js')
-    script(src='/js/angular.min.js')
-    script(src='/js/angular-resource.min.js')
-    script(src='/js/angular-route.min.js')
-    script(src='/js/epiceditor.min.js')
-    script(src='/js/application.js')
-    script(src='/js/angular-sanitize.min.js')
+    .container
+      .row(ng-view)
+    script(src='../js/jquery-2.1.0.min.js')
+    script(src='../js/bootstrap.min.js')
+    script(src='../js/angular.min.js')
+    script(src='../js/angular-resource.min.js')
+    script(src='../js/angular-route.min.js')
+    script(src='../js/epiceditor.min.js')
+    script(src='../js/application.js')
+    script(src='../js/angular-sanitize.min.js')

@@ -1,19 +1,22 @@
-.col-md-9
-	h2 New wish:
-	form
-		.form-group
-			label Title
-			input(class='form-control wish-title', ng-model='newWish.title',type='text', placeholder='Title, use one sentence describe your wish') 
-		.form-group
-			label Content
-			textarea(class='form-control wish-content', ng-model='newWish.content',rows=8, placeholder='Describe your wish detailedly.')
-.col-md-3
-	aside.bg-tips
-		h3 Tips
-		ul
-			li Please make your wish can be helped.
-			li Please make your wish explicit.
-	aside
-		h3 Tags
-		bootstrap-tagsinput(ng-model="tags", typeahead-source="queryTags", tagclass="getTagClass", itemvalue="value", itemtext="text", placeholder="Add tags")
-	button(class='btn btn-embossed btn-primary wish-submit',ng-click='submitNewWish()') Submit	
+div(ng-hide='newWish.err')
+  div(class="alert alert-warning", ng-show="alert.show", ng-bind="alert.text")
+  .col-md-9
+    h2 创建新的愿望:
+    form
+      .form-group
+        label 标题
+        input(class='form-control wish-title', ng-model='newWish.title',type='text', placeholder='Title, use one sentence describe your wish')
+      .form-group
+        label 内容
+        textarea(class='form-control wish-content', ng-model='newWish.content',rows=8, placeholder='Describe your wish detailedly.')
+  .col-md-3
+    aside.bg-tips
+      h3 提示：
+      ul
+        li Please make your wish can be helped.
+        li Please make your wish explicit.
+    aside
+      h3 标签
+      bootstrap-tagsinput(ng-model="tags", typeahead-source="queryTags", tagclass="getTagClass", itemvalue="value", itemtext="text", placeholder="Add tags")
+    button(class='btn btn-embossed btn-primary wish-submit',ng-click='submitNewWish()') 提交
+div.dialog(ng-show="newWish.err", ng-bind="newWish.err")

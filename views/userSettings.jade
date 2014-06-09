@@ -1,1 +1,31 @@
-
+ul.nav.nav-tabs.nav-append-content
+  li(ng-class="{active: showProfile}")
+    a(href="#" ng-click="showTab('profile')") 修改信息
+  li(ng-class="{active: showSettings}")
+    a(href="#" ng-click="showTab('settings')") 修改密码
+.tab-content
+  .tab-pane#profile(ng-class="{active: showProfile}")
+    form(role="form")
+      .form-group
+        label(for="exampleInputPassword1") 昵称
+        input(type="input", class="form-control", ng-model="profile.postData.name", placeholder="昵称")
+      .form-group
+        label(for="exampleInputPassword1") 自我简介
+        textarea(class="form-control", ng-model="profile.postData.introduce", placeholder="自我介绍")
+      button(class="btn btn-default", ng-click="profile.confirm()") 确认修改
+      div(class="alert alert-error", ng-show="profile.alert.show") {{profile.alert.text}}
+        button(type="button", class="close fui-cross", data-dismiss="alert")
+  .tab-pane#password(ng-class="{active: showSettings}")
+    form(role="form")
+      .form-group
+        label(for="exampleInputPassword1") 原始密码
+        input(type="password", class="form-control", ng-model="password.postData.oldPassword", placeholder="密码")
+      .form-group
+        label(for="exampleInputPassword1") 修改后密码
+        input(type="password", class="form-control", ng-model="password.postData.newPassword", placeholder="密码")
+      .form-group
+        label(for="exampleInputPassword1") 再次输入密码
+        input(type="password", class="form-control", ng-model="password.postData.confirmNewPassword", placeholder="再次输入密码")
+      button(class="btn btn-default", ng-click="password.confirm()") 确认修改
+      div(class="alert alert-error", ng-show="password.show.alert") {{password.show.alertMsg}}
+        button(type="button", class="close fui-cross", data-dismiss="alert")

@@ -10,7 +10,7 @@ String.prototype.repeat = function (num) {
   $.fn.addSliderSegments = function (amount) {
     return this.each(function () {
       var segmentGap = 100 / (amount - 1) + "%",
-		  segment = "<div class='ui-slider-segment' style='margin-left: " + segmentGap + ";'></div>";
+        segment = "<div class='ui-slider-segment' style='margin-left: " + segmentGap + ";'></div>";
       $(this).prepend(segment.repeat(amount - 2));
     });
   };
@@ -23,19 +23,13 @@ String.prototype.repeat = function (num) {
     // $("select[name='info']").selectpicker({style: 'btn-info'});
     // $("select[name='small']").selectpicker({style: 'btn-sm btn-warning'});
 
-    // Tabs
-    $(".nav-tabs a").on('click', function (e) {
-      e.preventDefault();
-      $(this).tab("show");
-    })
-
     // Tooltips
     // $("[data-toggle=tooltip]").tooltip("show");
 
     // Tags Input
     if ($(".tagsinput").length) {
       $(".tagsinput").tagsInput();  
-    };
+    }
 
     // jQuery UI Sliders
     var $slider = $("#slider");
@@ -214,6 +208,29 @@ String.prototype.repeat = function (num) {
         }
       };
     })
+    .directive('editCell', function(){
+      return {
+        scope: {
+          content: '@content'
+        },
+        link: function(scope, element){
+          element.on('dblclick', function(){
+            $(this).find('span').addClass('hide');
+            $(this).find('input').removeClass('hide').focus();
+          });
+        }
+      };
+    })
+    .directive('editCellBlur', function(){
+      return {
+        link: function(scope, element){
+          element.blur(function(){
+            $(this).prev().removeClass('hide');
+            $(this).addClass('hide');
+          });
+        }
+      }
+    })
     ;
   var adminServices = angular.module('wishSocial.admin.services',['ngResource']);
   adminServices
@@ -251,12 +268,99 @@ String.prototype.repeat = function (num) {
           return delay.promise;
       }
     })
-    ;
+    .factory('Users', function($resource){
+      return $resource('/rest/users/:userName', {userName:'@keyName'});
+    })
+    .factory('UsersLoader', function(Users, $q, $route){
+      return function(){
+        var delay = $q.defer();
+        if($route.current.params.userName) {
+          Users.get(
+            {keyName: $route.current.params.userName},
+            function(user){
+              delay.resolve(user);
+            },
+            function() {
+              delay.reject('Unable to fetch the user!');
+            }
+          );
+        } else {
+          Users.query(
+            function(users) {
+              delay.resolve(users);
+            },
+            function() {
+              delay.reject('Unable to fetch the user!');
+            }
+          );
+        }
+        return delay.promise;
+      }
+    })
+    .factory('Badges', function($resource) {
+      return $resource('/rest/badges/:userName/:badgeId', {userName: '@userName', badgeId: '@id'});
+    })
+    .factory('BadgesLoader', function(Badges, $q, $route){
+      return function(){
+        var delay = $q.defer();
+        Badges.query(
+          {userName: ''},
+          function(badges){
+            delay.resolve(badges);
+          }
+          ,function() {
+            delay.reject('Unable to fetch badges!');
+          }
+        );
+        return delay.promise;
+      }
+    })
+  ;
   var adminControllers = angular.module('wishSocial.admin.controllers',['ngSanitize']);
   adminControllers
-    .controller('Init',function($http){
+    .controller('Init',function($http, $scope, $location){
       //将post内容以表单格式传到服务端
       $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+      $http.defaults.transformRequest = function(obj){
+        var str = [];
+        for (var key in obj) {
+          if (obj[key] instanceof Array) {
+            for(var idx in obj[key]){
+              var subObj = obj[key][idx];
+              for(var subKey in subObj){
+                str.push(encodeURIComponent(key) + "[" + idx + "][" + encodeURIComponent(subKey) + "]=" + encodeURIComponent(subObj[subKey]));
+              }
+            }
+          }
+          else {
+            str.push(encodeURIComponent(key) + "=" + encodeURIComponent(obj[key]));
+          }
+        }
+        return str.join("&");
+      }
+      $scope.isActive = {
+        users: false,
+        wishes: false,
+        badges: false
+      };
+
+      switch($location.path()) {
+        case '/admin/users':
+          $scope.isActive.users = true;
+          break;
+        case '/admin/wishes':
+          $scope.isActive.wishes = true;
+          break;
+        case '/admin/badges':
+          $scope.isActive.badges = true;
+          break;
+      }
+      $scope.active = function(item) {
+        angular.forEach($scope.isActive, function(value, key){
+          this[key] = false;
+        },$scope.isActive);
+        $scope.isActive[item] = true;
+      }
     })
     //对应查看所有开发日志视图
     .controller('DevelopmentProcessesCtrl',function($scope,$location,developmentProcesses){
@@ -270,13 +374,13 @@ String.prototype.repeat = function (num) {
       $scope.addDevelopmentProcess = function(){
         if (!$scope.title) {
           alert('Please input the title!');
-        };
+        }
         $scope.editor.save();
         //创建一条开发记录
         var postData = JSON.parse(localStorage['adminMarkdownEditorContent']).epiceditor;
         if (!postData.content) {
           alert('Please input the content!');
-        };
+        }
         postData.title = $scope.title;
         postData.contentHtml = $scope.editor.exportFile('epiceditor','html');
         postData = window.$.param(postData);
@@ -297,12 +401,12 @@ String.prototype.repeat = function (num) {
       $scope.saveContent = function(){
         if (!$scope.developmentProcess.title) {
           alert('Please input the title!');
-        };
+        }
         $scope.editor.save();
         var postData = JSON.parse(localStorage['adminMarkdownEditorContent']).epiceditor;
         if (!postData.content) {
           alert('Please input the content!');
-        };
+        }
         postData.title = $scope.developmentProcess.title;
         postData.contentHtml = $scope.editor.exportFile('epiceditor','html');
         postData = window.$.param(postData);
@@ -317,7 +421,82 @@ String.prototype.repeat = function (num) {
           });
       }
     })
-    ;
+    .controller('UsersCtrl', function($scope, users){
+      $scope.users = users;
+      $scope.alert = {
+        show: false,
+        text: ''
+      }
+    })
+    .controller('UserCtrl', function($scope, $http, Users){
+      $scope.saveModified = function(){
+        var user = $scope.$parent.user;
+        Users.save({}, user,function(){
+          $scope.$parent.$parent.alert.show = true;
+          $scope.$parent.$parent.alert.text = '修改成功';
+
+          $scope.isModified = false;
+        }, function(res){
+          $scope.$parent.$parent.alert.show = true;
+          $scope.$parent.$parent.alert.text = res.data.err;
+        });
+      }
+      $scope.delete = function($index){
+        var user = $scope.$parent.user;
+        Users.remove({}, user, function(){
+          $scope.$parent.$parent.users.splice($index, 1);
+
+          $scope.$parent.$parent.alert.show = true;
+          $scope.$parent.$parent.alert.text = '删除成功';
+        })
+      }
+    })
+    .controller('BadgesCtrl', function($scope, badges){
+      $scope.badges = badges;
+      $scope.alert = {
+        show: false,
+        text: ''
+      };
+    })
+    .controller('BadgeCtrl', function($scope, Badges){
+      $scope.saveModified = function(){
+        var badge = $scope.$parent.badge;
+        Badges.save({}, badge,function(){
+          $scope.$parent.$parent.alert.show = true;
+          $scope.$parent.$parent.alert.text = '修改成功';
+
+          $scope.isModified = false;
+        }, function(res){
+          $scope.$parent.$parent.alert.show = true;
+          $scope.$parent.$parent.alert.text = res.data.err;
+        });
+      }
+      $scope.delete = function($index){
+        var badge = $scope.$parent.badge;
+        Badges.remove({}, badge, function(){
+          $scope.$parent.$parent.badges.splice($index, 1);
+
+          $scope.$parent.$parent.alert.show = true;
+          $scope.$parent.$parent.alert.text = '删除成功';
+        })
+      }
+    })
+    .controller('LoginCtrl', function($scope, $http, $location){
+      $scope.admin = {
+        name: '',
+        password:''
+      };
+      $scope.login = function(){
+        $http.post('/admin/login', $scope.admin)
+          .success(function(res){
+            $scope.$parent.admin = res.userName;
+
+            $scope.$parent.active('users');
+            $location.path('/admin/users');
+          });
+      }
+    })
+  ;
   var admin = angular.module(
     'wishSocial.admin'
     ,['ngRoute'
@@ -328,7 +507,8 @@ String.prototype.repeat = function (num) {
   );    
   admin
     .config(
-      function($routeProvider) {
+      function($routeProvider, $locationProvider) {
+        $locationProvider.html5Mode(true).hashPrefix('!');
         $routeProvider
           //查看所有的开发日志
           .when('/view/developmentProcesses',{
@@ -355,9 +535,31 @@ String.prototype.repeat = function (num) {
             controller: 'AddDevlopmentProcessCtrl'
             ,templateUrl: '/views/developmentProcess-add.jade'
           })
+          .when('/admin/users', {
+            controller: 'UsersCtrl',
+            templateUrl: '/views/admin/users.jade',
+            resolve: {
+              users: function(UsersLoader) {
+                return UsersLoader();
+              }
+            }
+          })
+          .when('/admin/login', {
+            controller: 'LoginCtrl',
+            templateUrl: '/views/admin/login.jade'
+          })
+          .when('/admin/badges', {
+            controller: 'BadgesCtrl',
+            templateUrl: '/views/admin/badges.jade',
+            resolve: {
+              badges: function(BadgesLoader) {
+                return BadgesLoader();
+              }
+            }
+          })
           //显示开发者的所有日志
           .otherwise({
-            redirectTo: '/view/developmentProcesses'
+            redirectTo: '/admin/users'
           })
           ;
       }
@@ -366,33 +568,188 @@ String.prototype.repeat = function (num) {
   //My own index JS
   var indexDirectives = angular.module('wishSocial.index.directives',[]);
   var indexServices = angular.module('wishSocial.index.services',['ngResource']);
-  var indexControllers = angular.module('wishSocial.index.controllers',['bootstrap-tagsinput']);
+  var indexFilters  = angular.module('wishSocial.index.filters', []);
+  var indexControllers = angular.module('wishSocial.index.controllers',['bootstrap-tagsinput', 'ngCookies']);
+  indexDirectives
+    .directive('', function(){
+
+    });
+  indexFilters
+    .filter('preppendComma', function(){
+      return function(input){
+        return input ? ',' + input : '';
+      }
+    });
   indexServices
     //所有愿望对应的资源路径
     .factory('Wishes',function($resource){
-      return $resource('/wishes/:id',{id:'@id'});
+      return $resource('/rest/wishes/:userName',{userName: '@userName'});
     })
     //载入所有愿望
-    .factory('WishesLoader', function(Wishes,$q){
+    .factory('WishesLoader', function(Wishes,$q, $route){
       return function(){
-          var delay = $q.defer();
-          Wishes.query(
-            function(wishes){
-              delay.resolve(wishes);
-            }
-            ,function() {
-              delay.reject('Unable to fetch wishes!');
+        var delay = $q.defer();
+        Wishes.query(
+          {userName: $route.current.params.userName},
+          function(wishes){
+            delay.resolve(wishes);
+          }
+          ,function() {
+            delay.reject('Unable to fetch wishes!');
+          }
+        );
+        return delay.promise;
+      }
+    })
+    .factory('Users', function($resource){
+      return $resource('/rest/users/:userName', {userName:'@useName'});
+    })
+    .factory('CurUser', function($resource){
+      return $resource('/rest/user/');
+    })
+    .factory('CurUserLoader', function(CurUser, $q){
+      return function(){
+        var delay = $q.defer();
+        CurUser.get(
+          function(curUser) {
+            delay.resolve(curUser);
+          },
+          function() {
+            delay.reject('Unable to fetch the current user!');
+          }
+        );
+        return delay.promise;
+      };
+    })
+    .factory('UsersLoader', function(Users, $q, $route){
+      return function(){
+        var delay = $q.defer();
+        if($route.current.params.userName) {
+          Users.get(
+            {userName: $route.current.params.userName},
+            function(user){
+              delay.resolve(user);
+            },
+            function() {
+              delay.reject('Unable to fetch the user!');
             }
           );
-          return delay.promise;
+        } else {
+          Users.query(
+            function(users) {
+              delay.resolve(users);
+            },
+            function() {
+              delay.reject('Unable to fetch the user!');
+            }
+          );
+        }
+        return delay.promise;
       }
-    })			 
+    })
+    .factory('Wish', function($resource){
+      return $resource('/rest/wish/:id', {id: '@id'});
+    })
+    .factory('WishLoader', function(Wish, $q, $route){
+      return function(){
+        var delay = $q.defer();
+        Wish.get(
+          {id: $route.current.params.id},
+          function(wish){
+            delay.resolve(wish);
+          },
+          function() {
+            delay.reject('Unable to fetch the wish!')
+          }
+        );
+        return delay.promise;
+      }
+    })
+    .factory('Badges', function($resource) {
+      return $resource('/rest/badges/:userName', {userName: '@userName'});
+    })
+    .factory('BadgesLoader', function(Badges, $q, $route){
+      return function(){
+        var delay = $q.defer();
+        Badges.query(
+          {userName: $route.current.params.userName},
+          function(badges){
+            delay.resolve(badges);
+          }
+          ,function() {
+            delay.reject('Unable to fetch badges!');
+          }
+        );
+        return delay.promise;
+      }
+    })
+    .factory('Tags', function($resource) {
+      return $resource('/tags/:wishId', {wishId: '@wishId'});
+    })
+    .factory('TagsLoader', function(Tags, $q, $route){
+      return function(){
+        var delay = $q.defer();
+        Tags.query(
+          {wishId: $route.current.params.id},
+          function(tags) {
+            delay.resolve(tags);
+          },
+          function() {
+            delay.reject('Unable to fetch the user!');
+          }
+        );
+        return delay.promise;
+      }
+    })
+  ;
   indexControllers
-    .controller('Init',function($http){
+    .controller('Init',function($http, $scope, $location){
+      $http.get('/login/state')
+        .success(function(loginState){
+
+          $scope.userName = loginState.userName ? loginState.userName : '登录';
+          $scope.hrefLoginState = loginState.userName ? '#' : '/login' ;
+          $scope.hrefUser = loginState.userName ? '/user/' + loginState.userName : '#';
+
+          $scope.isUserName = loginState.userName ? true : false;
+        });
       //将post内容以表单格式传到服务端
       $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-    }) 
-    .controller('AddWishCtrl',function($scope,$http,$location,$q){
+
+      $scope.logout = function() {
+        $http.post('/logout')
+          .success(function(){
+            $scope.userName = '登录';
+            $scope.hrefLoginState = '/login';
+            $scope.hrefUser = '#';
+            $scope.isUserName = false;
+
+            $location.path('/login');
+          });
+      }
+      $scope.param = function(obj){
+        var str = [];
+        for (var key in obj) {
+          if (obj[key] instanceof Array) {
+            for(var idx in obj[key]){
+              var subObj = obj[key][idx];
+              for(var subKey in subObj){
+                str.push(encodeURIComponent(key) + "[" + idx + "][" + encodeURIComponent(subKey) + "]=" + encodeURIComponent(subObj[subKey]));
+              }
+            }
+          }
+          else {
+            str.push(encodeURIComponent(key) + "=" + encodeURIComponent(obj[key]));
+          }
+        }
+        return str.join("&");
+      };
+    })
+    .controller('AddWishCtrl',function($scope,$http,$location){
+      if($scope.$parent.userName == '登录') {
+        $location.path('/login');
+      }
+
       $scope.tags = [];
 
       $scope.queryTags = function(query) {
@@ -401,47 +758,404 @@ String.prototype.repeat = function (num) {
       // console.log($scope);
       $scope.newWish = {
         title: '',
-        content: ''
+        content: '',
+        userName: ''
+      };
+      $scope.alert = {
+        text: '',
+        show: false
       };
       $scope.submitNewWish = function(){
+        if($scope.$parent.userName == '登录') {
+          $location.path('/login');
+        }
+
         var newWishObj = {};
         newWishObj.title = $scope.newWish.title;
         newWishObj.content = $scope.newWish.content;
+        newWishObj.userName = $scope.$parent.userName;
         newWishObj.tags = $scope.tags;
         var newWish = window.$.param(newWishObj);
-        var url = '/wishes'
+        var url = '/wishes';
         $http.post(url,newWish)
         .success(function(){
           $location.path('/');
-        });
+        })
+          .error(function(res){
+            $scope.alert.show = true;
+            $scope.alert.text = res.err;
+          });
       }
     })
-    .controller('viewWishesCtrl',function($scope,$location,wishes) {
+    .controller('EditWishCtrl', function($scope, $http, $location,  wish, tags){
+      $scope.queryTags = function(query) {
+        return $http.get('/tags?query='+query);
+      };
+      function arrObjsSpecificKey2Arr(arrObjs,key){
+        var arr = [];
+        arrObjs.map(function(item){
+          arr.push(item[key]);
+        });
+        return arr;
+      }
+      $scope.tags = arrObjsSpecificKey2Arr(tags,'name');
+      $scope.newWish = wish;
+      $scope.alert = {
+        show: false,
+        text: ''
+      };
+      $scope.submitNewWish = function(){
+        if($scope.$parent.userName == '登录') {
+          $location.path('/login');
+          return;
+        }
+
+        var newWishObj = {};
+        newWishObj.id = $scope.newWish.id;
+        newWishObj.title = $scope.newWish.title;
+        newWishObj.content = $scope.newWish.content;
+        newWishObj.userName = $scope.$parent.userName;
+        newWishObj.tags = $scope.tags;
+        var newWish = window.$.param(newWishObj);
+        var url = '/wishes';
+        $http.post(url,newWish)
+          .success(function(){
+            $location.path('/');
+          })
+          .error(function(res){
+            $scope.alert.text = res.err;
+            $scope.alert.show = true;
+          });
+      }
+    })
+    .controller('ViewWishesCtrl',function($scope,$location,wishes) {
       $scope.wishes = wishes;
-    });
+    })
+    .controller('LoginCtrl', function($scope, $location, $http){
+      if($scope.$parent.userName !== '登录') {
+        $location.path('/');
+      }
+      $scope.alert = {
+        show: false,
+        text: ''
+      };
+      $scope.login = function(){
+        var postData = {
+          email: $scope.email,
+          password: $scope.password
+        };
+        postData = window.$.param(postData);
+        $http.post('/login', postData)
+        .success(function(loginState){
+
+          $scope.$parent.userName = loginState.userName ? loginState.userName : '登录';
+          $scope.$parent.hrefLoginState = loginState.userName ? '#' : '/login' ;
+          $scope.$parent.hrefUser = loginState.userName ? '/user/' + loginState.userName : '#';
+
+          $scope.$parent.isUserName = loginState.userName ? true : false;
+          $location.path('/wishes');
+
+        })
+        .error(function(msg){
+            $scope.alert.show = true;
+            $scope.alert.text = msg.err;
+        });
+      };
+      $scope.register = function(){
+        $location.path('/register');
+      }
+    })
+    .controller('RegisterCtrl', function($scope, $location, $http){
+      $scope.registerForm = {
+        userName: '',
+        password: '',
+        confirmPassword: '',
+        email:''
+      };
+      $scope.alert = {
+        text: '',
+        show: false
+      };
+      $scope.register = function(){
+        var registerData = window.$.param($scope.registerForm);
+        var url = '/register';
+        $http.post(url, registerData)
+          .success(function(loginState){
+            $location.path('/');
+
+
+            $scope.$parent.userName = loginState.userName ? loginState.userName : '登录';
+            $scope.$parent.hrefLoginState = loginState.userName ? '#' : '/login' ;
+            $scope.$parent.hrefUser = loginState.userName ? '/user/' + loginState.userName : '#';
+
+            $scope.$parent.isUserName = loginState.userName ? true : false;
+          })
+          .error(function(res){
+            $scope.alert.show = true;
+            $scope.alert.text = res.err;
+          });
+      };
+    })
+    .controller('UserSettingsCtrl', function($scope, $http,$location, curUser){
+      if('登录' == $scope.$parent.userName) {
+        $location.path('/login');
+        return;
+      }
+      $scope.showProfile = true;
+      $scope.showSettings = false;
+      $scope.showTab = function(tabName){
+        switch(tabName) {
+          case 'profile':
+            $scope.showProfile = true;
+            $scope.showSettings = false;
+            break;
+          case 'settings':
+            $scope.showSettings = true;
+            $scope.showProfile = false;
+            break;
+        }
+      };
+      // 声明profile
+      $scope.profile = {
+        postData: {
+          name: ''
+        },
+        alert: {
+          show: false,
+          text: ''
+        },
+        confirm: function(){
+          if($scope.userName == '登录') {
+            $location.path('/login');
+            return;
+          }
+          $http.post('/user/settings/profile', $scope.$parent.param($scope.profile.postData))
+            .success(function () {
+              $scope.$parent.userName = $scope.profile.postData.name;
+              $location.path('/user/'+$scope.userName);
+            })
+            .error(function(res){
+              $scope.profile.alert.show = true;
+              $scope.profile.alert.text = res.err;
+            });
+        }
+      };
+      // profile赋值
+      $scope.profile.postData = curUser;
+      $scope.password = {
+        postData: {
+          oldPassword: '',
+          newPassword: '',
+          confirmNewPassword: ''
+        },
+        alert: {
+          show: false,
+          text: ''
+        },
+        confirm: function(){
+          $http.post('/user/settings/password', $scope.$parent.param($scope.password.postData))
+            .success(function(){
+
+              $scope.password.alert.show = true;
+              $scope.password.alert.text = '修改成功！';
+
+              $location.path('/user/'+$scope.userName);
+            })
+            .error(function(res)
+            {
+              $scope.password.alert.show = true;
+              $scope.password.alert.text = res.err;
+            });
+        }
+      };
+    })
+    .controller('ViewWishCtrl', function($scope, wish,$http, $location){
+      $scope.helpStateConfig = {
+        'published': {
+          disabled: false,
+          text: '帮助'
+        },
+        'finished': {
+          disabled: true,
+          text: '已达成'
+        },
+        'helping': {
+          disabled: true,
+          text: '正在进行'
+        },
+        //愿望发起者看到的状态
+        'helpingOwner': {
+          disabled: false,
+          text: '确认实现愿望'
+        },
+        'finishedOwner': {
+          disabled: true,
+          text: '已达成'
+        },
+        'publishedOwner': {
+          disabled: true,
+          text: '已发布'
+        }
+      };
+      $scope.editWish = function(){
+        $location.path('/edit/wish/'+$scope.wish.id);
+      };
+      $scope.wish = wish;
+      $scope.helpState = {};
+      if($scope.wish.status == null) {
+        //是否是本人
+        if($scope.wish.userName == $scope.$parent.userName) {
+          $scope.isSelf = true;
+          $scope.helpState = $scope.helpStateConfig['publishedOwner'];
+        } else {
+          $scope.isSelf = false;
+          $scope.helpState = $scope.helpStateConfig['published'];
+        }
+      } else {
+        //是否是本人
+        if($scope.wish.userName == $scope.$parent.userName) {
+          $scope.isSelf = true;
+          var status = $scope.wish.status+'Owner';
+          $scope.helpState = $scope.helpStateConfig[status];
+        } else {
+          $scope.isSelf = false;
+          $scope.helpState = $scope.helpStateConfig[$scope.wish.status];
+        }
+      }
+      $scope.help = function(){
+        if($scope.$parent.userName == '登录') {
+          $location.path('/login');
+          return;
+        }
+        if($scope.wish.status == null || $scope.wish.status == 'published') {
+          var postData = {
+            wishId: $scope.wish.id
+          };
+          postData = window.$.param(postData);
+          $http.post('/help', postData)
+            .success(function(){
+              $scope.wish.status = 'helping';
+              $scope.helpState = $scope.helpStateConfig[$scope.wish.status];
+            })
+            .error(function(){
+              alert('对不起，已被别人抢先一步了：（');
+            });
+        } else if($scope.wish.status == 'helping' && $scope.isSelf) {//确认愿望已经完成
+          $http.post('/wish/finish',window.$.param({wishId: $scope.wish.id}))
+            .success(function(){
+              $scope.helpState = $scope.helpStateConfig['finishedOwner'];
+            })
+            .error(function(){
+              $location.path('/login');
+            });
+        }
+      };
+    })
+    .controller('ViewUserHome', function($scope, user, wishes, badges){
+      $scope.user = user;
+      $scope.wishes = wishes;
+      $scope.badges = badges;
+    })
+  ;
+
   var index = angular.module(
     'wishSocial.index',
-    ['ngRoute',
-    'wishSocial.index.directives',
-    'wishSocial.index.controllers',
-    'wishSocial.index.services'
+    [
+      'ngCookies',
+      'ngRoute',
+      'wishSocial.index.directives',
+      'wishSocial.index.controllers',
+      'wishSocial.index.services',
+      'wishSocial.index.filters'
     ]
   );
   index.config(
-    function($routeProvider) {
+    function($routeProvider, $locationProvider) {
+      $locationProvider.html5Mode(true).hashPrefix('!');
       $routeProvider
         .when('/',{
-          controller: 'viewWishesCtrl',
+          controller: 'ViewWishesCtrl',
           resolve: {
-      			wishes: function(WishesLoader) {
-      			  return WishesLoader();
-      			}
-          }, 
+            wishes: function(WishesLoader) {
+              return WishesLoader();
+            }
+          },
           templateUrl: '/views/wishes.jade'
+        })
+        .when('/wishes',{
+          controller: 'ViewWishesCtrl',
+          resolve: {
+            wishes: function(WishesLoader) {
+              return WishesLoader();
+            }
+          },
+          templateUrl: '/views/wishes.jade'
+        })
+        .when('/wishes/:userName',{
+          controller: 'ViewWishesCtrl',
+          resolve: {
+            wishes: function(WishesLoader) {
+              return WishesLoader();
+            }
+          },
+          templateUrl: '/views/wishes.jade'
+        })
+        .when('/login', {
+          controller: 'LoginCtrl',
+          templateUrl: '/views/login.jade'
         })
         .when('/add/wish',{
           controller: 'AddWishCtrl',
           templateUrl: '/views/wish-add.jade'
+        })
+        .when('/wish/:id', {
+          controller: 'ViewWishCtrl',
+          resolve: {
+            wish: function(WishLoader) {
+              return WishLoader();
+            }
+          },
+          templateUrl: '/views/wish.jade'
+        })
+        .when('/edit/wish/:id', {
+          controller: 'EditWishCtrl',
+          templateUrl: '/views/wish-add.jade',
+          resolve: {
+            wish: function(WishLoader) {
+              return WishLoader();
+            },
+            tags: function(TagsLoader) {
+              return TagsLoader();
+            }
+          }
+        })
+        .when('/register', {
+          controller: 'RegisterCtrl',
+          templateUrl: '/views/register.jade'
+        })
+        .when('/user/settings', {
+          controller: 'UserSettingsCtrl',
+          templateUrl: '/views/userSettings.jade',
+          resolve: {
+            curUser: function(CurUserLoader){
+              return CurUserLoader();
+            }
+          }
+        })
+        .when('/user/:userName', {
+          controller: 'ViewUserHome',
+          templateUrl: '/views/userHome.jade',
+          resolve: {
+            user: function(UsersLoader){
+              return UsersLoader();
+            },
+            wishes: function(WishesLoader){
+              return WishesLoader();
+            },
+            badges: function(BadgesLoader) {
+              return BadgesLoader();
+            }
+          }
         })
         .otherwise({
           redirectTo:'/'

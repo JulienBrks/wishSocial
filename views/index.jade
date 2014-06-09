@@ -1,19 +1,19 @@
 !!! 5
-html(ng-app='wishSocial.index', ng-controller='Init')
+html(ng-app='wishSocial.index')
   head
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
     title 愿望帮帮忙
     meta(name='description', content='')
     meta(name='viewport', content='width=device-width, initial-scale=1')
-    link(rel='stylesheet', type='text/css', href='css/bootstrap.css')
-    link(rel='stylesheet', type='text/css', href='css/flat-ui.css')
-    link(rel='stylesheet', type='text/css', href='css/bootstrap-tagsinput.css')
-    link(rel='stylesheet', type='text/css', href='css/application.css')      
-    link(rel='shortcut icon', href='images/favicon.ico')
+    link(rel='stylesheet', type='text/css', href='/css/bootstrap.css')
+    link(rel='stylesheet', type='text/css', href='/css/flat-ui.css')
+    link(rel='stylesheet', type='text/css', href='/css/bootstrap-tagsinput.css')
+    link(rel='stylesheet', type='text/css', href='/css/application.css')
+    link(rel='shortcut icon', href='/images/favicon.ico')
     //if lt IE 9
       script(src='js/html5shiv.js')
-  body
+  body(ng-controller='Init')
     //if lt IE 7
       p.browsehappy
         | You are using an
@@ -21,11 +21,26 @@ html(ng-app='wishSocial.index', ng-controller='Init')
         | browser. Please
         a(href='http://browsehappy.com/') upgrade your browser
         | to improve your experience.
+    .header
+      .container.clearfix.nav-bar
+        ul.navbar-right.nav#test
+          li
+            a(ng-href='/message') 消息
+              span.new 2
+          li.dropdown
+            a.dropdown-toggle(ng-bind='userName', data-toggle='dropdown', href='{{hrefLoginState}}')
+            ul.dropdown-menu(ng-show='isUserName')
+              li
+                a(ng-href='{{hrefUser}}') 我的主页
+              li
+                a(ng-href='/user/settings') 帐号管理
+              li.hr
+                a(ng-click='logout()') 退出
     .navbar.navbar-default
       .container
         .navbar-header
           button.btn.btn-navbar(type='button', data-toggle='collapse', data-target='.navbar-collapse-01')
-          a.navbar-brand.fui-myspace(href='#/') 愿望帮帮忙
+          a.navbar-brand.fui-myspace(href='/wishes') 愿望帮帮忙
         .navbar-collapse.collapse.navbar-collapse-01
           form.navbar-form.pull-left(action='#')
             .form-group
@@ -34,7 +49,7 @@ html(ng-app='wishSocial.index', ng-controller='Init')
                 span.input-group-btn
                   button.btn(type='submit')
                     span.fui-search
-          a.btn.btn-primary.pull-right.mt15(href='#/add/wish') + 许愿
+          a.btn.btn-primary.pull-right.mt15(href='/add/wish') + 许愿
     .container
       .row(ng-view)
     .bottom-menu.bottom-menu-large.mbl
@@ -82,16 +97,17 @@ html(ng-app='wishSocial.index', ng-controller='Init')
             h5.title 内容许可
             ul.bottom-links
               li Powered by Webu123
-    script(src='js/jquery-2.1.0.min.js')
+    script(src='/js/jquery-2.1.0.min.js')
     script(src='/js/angular.min.js')
     script(src='/js/angular-resource.min.js')
-    script(src='/js/angular-route.min.js')    
-    script(src='js/jquery-ui-1.10.3.custom.min.js')
-    script(src='js/bootstrap.min.js')
-    script(src='js/bootstrap-select.js')
-    script(src='js/bootstrap-switch.js')
-    script(src='js/bootstrap-typeahead.js')
-    script(src='js/jquery.placeholder.js')
-    script(src='js/bootstrap-tagsinput.min.js')
-    script(src='js/bootstrap-tagsinput-angular.js')
-    script(src='js/application.js')
+    script(src='/js/angular-route.min.js')
+    script(src='/js/angular-cookies.min.js')
+    script(src='/js/jquery-ui-1.10.3.custom.min.js')
+    script(src='/js/bootstrap.min.js')
+    script(src='/js/bootstrap-select.js')
+    script(src='/js/bootstrap-switch.js')
+    script(src='/js/bootstrap-typeahead.js')
+    script(src='/js/jquery.placeholder.js')
+    script(src='/js/bootstrap-tagsinput.min.js')
+    script(src='/js/bootstrap-tagsinput-angular.js')
+    script(src='/js/application.js')
